@@ -1,0 +1,12 @@
+<% include partials/_header %>
+<% include partials/_homeButton %>
+<h3> Select a URL: </h3>
+<ul>
+<% for (let key in urls){ %>
+  <form action="/urls_update/<%key%>" method="POST" style="margin:15px;">
+    <p><%=key%></p>
+    <input type="hidden" name="shortURL" value="<%=key%>" />
+    <input type="text" name="newURL" value="<%=urls[key]%>" style="width: 300px">
+    <input type="submit" value="Update">
+  </form>
+<% } %>

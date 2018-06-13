@@ -5,5 +5,5 @@ function generateRandomString() {
 }
 
 module.exports = {
-  generateRandomString: generateRandomString,
+  genRandomStr: generateRandomString,
 }

@@ -1,3 +1,7 @@
-<%- include ./partials/_header); %>
-<% <form method="POST" action="/urls/9sm5xK/delete">
-</form>
+<% include partials/_header %>
+
+<% for (let key in urls){ %>
+  <form method="POST" action="/urls/<%=key%>/delete">
+    <input type="submit" value="Delete" name="id" /><%=urls[key]%>
+  </form>
+<% } %>

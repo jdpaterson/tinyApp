@@ -1,7 +1,10 @@
 <% include partials/_header %>
-
-<% for (let key in urls){ %>
-  <form method="POST" action="/urls/<%=key%>/delete">
-    <input type="submit" value="Delete" name="id" /><%=urls[key]%>
-  </form>
-<% } %>
+<div class="row">
+    <div class="col-sm-8">
+        <div class="jumbotron">
+            <h1>Welcome to tinyApp</h1>
+        </div>
+    </div>
+<% include partials/_sidebar %>
+</div>
+</main>

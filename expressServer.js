@@ -13,25 +13,30 @@ const urlDatabase = {
 };
 
 app.get("/", (req, res) => {
-  res.end("Welcome to the home page!\n");
+  let templateVars = {urls: urlDatabase};
+  res.render("urls_index", templateVars );
 });
 app.get("/urls", (req, res) => {
   let templateVars = {urls: urlDatabase};
   res.render("urls_index", templateVars);
 });
-app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect('/urls');
-});
 app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params['shortURL']];
   res.redirect(longURL);
 });
-app.post("/urls", (req, res) => {
-  const rStr = randomString.generateRandomString();
-  urlDatabase[rStr] = req.body.longURL;
-  res.send(urlDatabase);
+app.get("/urls_show/", (req, res) => {
+  let templateVars = {urls: urlDatabase};
+  res.render("urls_show", templateVars);
 });
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect('/urls');
+});
+app.post("/urls_show/:id", (req, res) => {
+  console.log('Req: ' + req);
+  console.log('Res: ' + res);
+  //urlDatabase[req.params.id] =
+})
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });

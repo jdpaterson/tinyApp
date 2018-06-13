@@ -1,1 +1,11 @@
-<%- include ./partials/_header); %>
+<% include partials/_header %>
+<% for (let key in urls){ %>
+<form>
+  <form action="/urls_show/<%key%>" method="POST" style="margin:150px;">
+    <label for="input">Enter a URL:</label>
+    <input type="text" name="id" value="<%=urls[key]%>" style="width: 300px">
+    <input type="submit" value="Update">
+  </form>
+
+<% } %>
+</form>

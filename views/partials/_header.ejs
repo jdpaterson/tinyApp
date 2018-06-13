@@ -5,4 +5,14 @@
       body    { padding-top:25px; padding-left: 25px; }
   </style>
 </head>
-<h2>tinyApp</h2>
+  <% if (username) { %>
+    <form method="POST" action="/logout" >
+      <input type="submit" value="Logout" />
+    </form>
+    <h4>Hello <%= username %>, welcome to tinyApp</h4>    
+  <% } else { %>
+    <form method="POST" action="/login">
+      <input type="text" name="username" />
+      <input type="submit" value="Login" />
+    </form>
+  <% } %>

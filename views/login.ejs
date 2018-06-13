@@ -1,0 +1,11 @@
+<% include partials/_header %>
+<% if (locals.user) { %>
+  <h6>You are already logged in!</h6>
+  <% include partials/_homeButton %>
+<% }else{ %>
+  <form method="POST" action="/login">
+    <input type="text" name="userEmail" />
+    <input type="submit" value="Login" />
+  </form>
+<% } %>
+<% include partials/_homeButton %>

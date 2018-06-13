@@ -2,17 +2,16 @@
 <head>
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
   <style>
-      body    { padding-top:25px; padding-left: 25px; }
+      body    { padding-top:5px; padding-left: 25px; }
   </style>
 </head>
-  <% if (username) { %>
+<h3><a href="./register" class="btn btn-info">Register</a></hr>
+<h3><a href="./login" class="btn btn-info">Login</a></hr>
+  <h1>tinyApp</h1>
+  <p>Get ready to shorten some urls</p>
+  <% if (locals.user) { %>
+    You are logged in as <%= locals.user.email %>.
     <form method="POST" action="/logout" >
       <input type="submit" value="Logout" />
-    </form>
-    <h4>Hello <%= username %>, welcome to tinyApp</h4>    
-  <% } else { %>
-    <form method="POST" action="/login">
-      <input type="text" name="username" />
-      <input type="submit" value="Login" />
     </form>
   <% } %>

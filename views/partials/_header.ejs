@@ -6,13 +6,20 @@
   </style>
 </head>
   <nav>
-  <% if (locals.user) { %>
-    You are logged in as <%= locals.user.email %>.
-    <form method="POST" action="/logout" >
-      <input type="submit" value="Logout" />
-    </form>
-  <% } %>
-<a href="./register" class="btn btn-info">Register</a>
-<a href="./login" class="btn btn-info">Login</a>
-  <h1>tinyApp</h1>
-  <p>Get ready to shorten some urls</p>
+    <% if (locals.user) { %>
+      You are logged in as <%= locals.user.email %>.
+      <form method="POST" action="/logout" >
+        <input type="submit" value="Logout" />
+      </form>
+    <% } %>
+      <a href="./register" class="btn btn-info">Register</a>
+    <% if (!locals.user) { %>
+      <a href="./login" class="btn btn-info">Login</a>
+    <% } %>
+  </nav>
+  <a href="./">
+    <div style="color: black; text-decoration: none;" >
+      <h1>tinyApp</h1>
+      <p>Get ready to shorten some urls</p>
+    </div>
+  </a>

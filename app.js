@@ -10,17 +10,23 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longUrl: "http://www.lighthouselabs.ca",
+    ownerId: "supGuy",
+  },
+  "9sm5xK": {
+    longUrl: "http://www.google.com",
+    ownerId: "supGuy"
+  },
 };
 
 const userList = {
   "supGuy": {
     id: "supGuy",
     email: "123@123.com",
-    password: "password"
+    password: "123"
   },
- "natta": {
+  "natta": {
     id: "natta",
     email: "natta@example.com",
     password: "dishwasher-funk"
@@ -59,6 +65,7 @@ app.get("/urls_delete", (req, res) => {
 
 app.get("/urls_create", (req, res) => {
   const templateVars = help.setTemplateVars(urlDatabase, userList, req.cookies);
+
   res.render("urls_create", templateVars);
 });
 
@@ -73,18 +80,23 @@ app.get("/login", (req, res) => {
 
 //POST Methods
 
-app.post("/urls_new", (req, res) => {
+app.post("/urls_create", (req, res) => {
   const newStr = help.genRandomStr();
   urlDatabase[newStr] = req.body.longURL;
   res.redirect('/');
 });
 
-app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
+app.post("/urls_delete", (req, res) => {
+  delete urlDatabase[req.body.urlToDelete];
   res.redirect('/urls');
 });
 
 app.post("/urls_update", (req, res) => {
+  console.log(req.cookies);
+  updatedUrl = {
+    longUrl: req.body.newURL,
+    ownerId: req.cookies["user_id"],
+  };
   urlDatabase[req.body.shortURL] = req.body.newURL;
   res.redirect('/');
 });
@@ -116,7 +128,8 @@ app.post("/register", (req, res) => {
     ){
     res.status(404).render('register', {error: 'Ensure all fields are populated.'});
   }else if (help.userExists(userList, req.body.email)){
-    res.status(404).render('register', {error: 'User already exists, please login.'});
+    res.status(404).render('register',
+    {error: 'Email already exists, login or choose a different email.'});
   }else{
     const newUser = {
       id: newUserId,

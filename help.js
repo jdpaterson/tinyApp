@@ -12,12 +12,9 @@ function isEmptyString(str){
   }
 }
 
-function userExists(userList, userId, email){
+function userExists(userList, email){
   for (user in userList){
     if (userList[user].email === email){
-      return true;
-    }
-    if (userList[user].id === userId){
       return true;
     }
   }
@@ -43,23 +40,37 @@ function getUserByEmail(userEmail, userList){
 }
 
 function setTemplateVars(urls, userData, cookies){
+  const userURLs = {};
+
   const templateVars = {
     urls: urls,
-    userList: userData,
   };
   if (cookies["user_id"] !== undefined){
-    const user = getUserById(cookies["user_id"], userData)
+    const user = getUserById(cookies["user_id"], userData);
+    var userUrls = getUserUrls(user.id, urls);    
+
     if (user){
       templateVars.user = user;
+      templateVars.user.userUrls = getUserUrls(user.id, urls);
     }
   }
   return templateVars;
 }
 
+function getUserUrls(userId, urls){
+  const userUrls = {};
+  for (let url in urls){
+    if (urls[url].ownerId === userId ){
+      userUrls[url] = urls[url];
+    }
+  }
+  return userUrls;
+}
+
 function passwordMatches(email, password, userList){
   for (user in userList){
     if (email === userList[user].email){
-      if (password === userList[user].password ){        
+      if (password === userList[user].password ){
         return true;
       }else{
         return false;

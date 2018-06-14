@@ -1,11 +1,17 @@
 <% include partials/_header %>
-<% include partials/_homeButton %>
 <% include partials/_error %>
-<div style="margin: 5px 5px 5px 5px">
-<% for (let key in urls){ %>
-
-  <form method="POST" action="/urls/<%=key%>/delete">
-    <input style="margin-left: 5px" type="submit" value="Delete" name="id" /><%=urls[key]%>
-  </form>
-<% } %>
-</div>
+  <div style="margin: 5px 5px 5px 5px">
+    <% if (locals.user === undefined){ %>
+      <a href="/login" >You must login to view urls.</a>
+    <% }else{ %>
+    <% if (user.userUrls === undefined){ %>
+      <p>You don't have any urls.</p>
+    <% } else { %>
+    <% for (let key in user.userUrls){ %>
+      <form method="POST" action="/urls_delete">
+        <input type="hidden" name="urlToDelete" value="<%=key%>" />
+        <input style="margin-left: 5px" type="submit" value="Delete" name="id" /><%=user.userUrls[key].longUrl %>
+      </form>
+    <% }} %>
+    <% } %>
+  </div>

@@ -1,7 +1,9 @@
 <% include partials/_header %>
-<% include partials/_homeButton %>
 <% include partials/_error %>
 
-<% for (let item in urls){ %>
-  <p><%= item %> - <%= urls[item] %> </p>
-<% } %>
+<% if (locals.user === undefined){ %>
+  <a href="/login" >You must login to view urls.</a>
+<% }else{ %>
+<% for (let key in user.userUrls){ %>
+  <p><%= key %> - <%= user.userUrls[key].longUrl %> </p>
+<% }} %>

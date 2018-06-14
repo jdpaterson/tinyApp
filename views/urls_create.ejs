@@ -1,7 +1,7 @@
 <% include partials/_header %>
 <% include partials/_homeButton %>
-
-<form action="/urls_new" method="POST" style="margin:15px;">
+<% include partials/_error %>
+<form action="/urls_create" method="POST" style="margin:15px;">
   <label for="longURL">Enter a URL:</label>
   <input type="text" name="longURL" placeholder="http://" style="width: 300px">
   <input type="submit" value="Submit">

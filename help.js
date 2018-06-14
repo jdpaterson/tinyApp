@@ -42,10 +42,39 @@ function getUserByEmail(userEmail, userList){
   return false;
 }
 
+function setTemplateVars(urls, userData, cookies){
+  const templateVars = {
+    urls: urls,
+    userList: userData,
+  };
+  if (cookies["user_id"] !== undefined){
+    const user = getUserById(cookies["user_id"], userData)
+    if (user){
+      templateVars.user = user;
+    }
+  }
+  return templateVars;
+}
+
+function passwordMatches(email, password, userList){
+  for (user in userList){
+    if (email === userList[user].email){
+      if (password === userList[user].password ){        
+        return true;
+      }else{
+        return false;
+      }
+    }
+  }
+  return false;
+}
+
 module.exports = {
   genRandomStr: generateRandomString,
   isEmptyString: isEmptyString,
   userExists: userExists,
   getUserById: getUserById,
   getUserByEmail: getUserByEmail,
+  setTemplateVars: setTemplateVars,
+  passwordMatches: passwordMatches,
 }

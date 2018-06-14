@@ -13,15 +13,17 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
-  keys: keys, //['string'],
+  keys: keys,
 }));
 
 const urlDatabase = {
   "b2xVn2": {
+    id: "b2xVn2",
     longUrl: "http://www.lighthouselabs.ca",
     ownerId: "supGuy",
   },
   "9sm5xK": {
+    id: "9sm5xK",
     longUrl: "http://www.google.com",
     ownerId: "supGuy"
   },
@@ -42,17 +44,55 @@ const userList = {
 
 //GET Methods
 app.get("/", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
-  res.render("urls_index", templateVars );
+  if (req.session.user_id === undefined){
+    res.redirect("/login");
+  }else{
+    res.redirect("/urls");
+  }
 });
 
 app.get("/urls", (req, res) => {
-  res.redirect("urls_read");
+  if (req.session.user_id === undefined){
+    res.status(404).render('login', {
+      error:'You are not logged in, please register or login'
+    });
+  }else{
+    const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
+    res.render("urls_read", templateVars);
+  }
 });
-
+app.get("/urls/:id", (req, res) => {
+  if (req.session.user_id === undefined){
+    res.status(404).render('login', {
+      error:'You are not logged in, please register or login'
+    });
+  }else{
+    if (!help.urlExists(req.params.id, urlDatabase)){
+      res.status(404).render('urls_read',{error:'We can\'t find an Id matching that value.'});
+    }else{
+      //User owns key
+      if(Object.keys(help.getUserUrls(req.session.user_id, urlDatabase)).indexOf(req.params.id) > -1){
+        const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
+        templateVars.urlToEdit = help.getUrlByShort(req.params.id, urlDatabase);
+        res.render('url_edit', templateVars);
+      }else{
+        res.status(404).render('You do not own that key');
+      }
+    }
+  }
+});
 app.get("/urls_read", (req, res) => {
   const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
   res.render("urls_read", templateVars);
+});
+app.get("/urls_new", (req, res) => {
+  if (req.session.user_id === undefined){
+    res.status(404).render('login', {error:'You are not logged in, please register or login'});
+  }else{
+    const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
+    res.render("urls_new", templateVars);
+  }
+
 });
 
 app.get("/u/:shortUrl", (req, res) => {
@@ -72,12 +112,6 @@ app.get("/urls_delete", (req, res) => {
   res.render("urls_delete", templateVars);
 });
 
-app.get("/urls_create", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
-
-  res.render("urls_create", templateVars);
-});
-
 app.get("/register", (req, res) => {
   res.render('register');
 });
@@ -90,9 +124,10 @@ app.get("/login", (req, res) => {
 
 //POST Methods
 
-app.post("/urls_create", (req, res) => {
+app.post("/urls", (req, res) => {
   const newStr = help.genRandomStr();
   const newUrl = {
+    id: newStr,
     longUrl: req.body.longURL,
     ownerId: req.session["user_id"],
   };
@@ -100,18 +135,19 @@ app.post("/urls_create", (req, res) => {
   res.redirect('/');
 });
 
-app.post("/urls_delete", (req, res) => {
-  delete urlDatabase[req.body.urlToDelete];
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
   res.redirect('/urls');
 });
 
-app.post("/urls_update", (req, res) => {
-  console.log(req.session);
+app.post("/urls/:id", (req, res) => {
+  console.log(req.params.id);
   const updatedUrl = {
+    id: req.params.id,
     longUrl: req.body.newURL,
     ownerId: req.session["user_id"],
   };
-  urlDatabase[req.body.shortURL] = updatedUrl;
+  urlDatabase[req.params.id] = updatedUrl;
   res.redirect('/');
 });
 

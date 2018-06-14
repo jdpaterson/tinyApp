@@ -5,5 +5,10 @@
   <a href="/login" >You must login to view urls.</a>
 <% }else{ %>
 <% for (let key in user.userUrls){ %>
+  <a href="/urls/<%=key%>">Edit</a>
   <p><%= key %> - <%= user.userUrls[key].longUrl %> </p>
+  <form method="POST" action="/urls/<%=key%>/delete" >
+    <input type="submit" value="Delete" />
+  </form>
 <% }} %>
+<a href="/urls_new">Create new URL</a>

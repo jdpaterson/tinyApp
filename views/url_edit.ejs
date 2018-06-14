@@ -1,0 +1,10 @@
+<% include partials/_header %>
+<% include partials/_error %>
+<% console.log(urlToEdit); %>
+<h3> Edit URL: </h3>
+  <form action="/urls/<%=urlToEdit.id%>" method="POST" style="margin:15px;">
+    <p><%=urlToEdit.id%></p>
+    <input type="hidden" name="shortURL" value="<%=urlToEdit.id%>" />
+    <input type="text" name="newURL" value="" placeholder="<%=urlToEdit.longUrl%>" style="width: 300px" >
+    <input type="submit" value="Update">
+  </form>

@@ -3,7 +3,7 @@
 <% if (locals.user === undefined){ %>
   <a href="/login" >You must login to view urls.</a>
 <% }else{ %>
-  <form action="/urls_create" method="POST" style="margin:15px;">
+  <form action="/urls" method="POST" style="margin:15px;">
     <label for="longURL">Enter a URL:</label>
     <input type="text" name="longURL" placeholder="http://" style="width: 300px">
     <input type="submit" value="Submit">

@@ -56,7 +56,7 @@ function setTemplateVars(urls, userData, session){
         templateVars.user.userUrls = getUserUrls(user.id, urls);
       }
     }
-  }  
+  }
   return templateVars;
 }
 
@@ -79,12 +79,31 @@ function passwordMatches(email, password, userList){
   return false;
 }
 
+function urlExists(url, urlList){
+  if (Object.keys(urlList).indexOf(url) > -1){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+function getUrlByShort(shortUrl, urlList){
+  for (url in urlList){
+    if (url === shortUrl){
+      return urlList[url];
+    }
+  }
+  return false;
+}
+
 module.exports = {
+  setTemplateVars: setTemplateVars,
+  urlExists: urlExists,
+  getUrlByShort: getUrlByShort,
+  getUserUrls: getUserUrls,
   genRandomStr: generateRandomString,
+  getUserByEmail: getUserByEmail,
+  passwordMatches: passwordMatches,
   isEmptyString: isEmptyString,
   userExists: userExists,
-  getUserById: getUserById,
-  getUserByEmail: getUserByEmail,
-  setTemplateVars: setTemplateVars,
-  passwordMatches: passwordMatches,
 }

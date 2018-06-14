@@ -1,4 +1,5 @@
 const randomString = require('randomString');
+const bcrypt = require('bcryptjs');
 
 function generateRandomString() {
   return randomString.generate(6);
@@ -39,21 +40,23 @@ function getUserByEmail(userEmail, userList){
   return false;
 }
 
-function setTemplateVars(urls, userData, cookies){
+function setTemplateVars(urls, userData, session){
   const userURLs = {};
 
   const templateVars = {
     urls: urls,
   };
-  if (cookies["user_id"] !== undefined){
-    const user = getUserById(cookies["user_id"], userData);
-    var userUrls = getUserUrls(user.id, urls);    
+  if (session !== undefined){
+    if (session["user_id"] !== undefined){
+      const user = getUserById(session["user_id"], userData);
+      var userUrls = getUserUrls(user.id, urls);
 
-    if (user){
-      templateVars.user = user;
-      templateVars.user.userUrls = getUserUrls(user.id, urls);
+      if (user){
+        templateVars.user = user;
+        templateVars.user.userUrls = getUserUrls(user.id, urls);
+      }
     }
-  }
+  }  
   return templateVars;
 }
 
@@ -70,11 +73,7 @@ function getUserUrls(userId, urls){
 function passwordMatches(email, password, userList){
   for (user in userList){
     if (email === userList[user].email){
-      if (password === userList[user].password ){
-        return true;
-      }else{
-        return false;
-      }
+      return bcrypt.compareSync(password,  userList[user].password)
     }
   }
   return false;

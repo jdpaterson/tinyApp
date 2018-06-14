@@ -1,13 +1,20 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
+const bcrypt = require('bcryptjs');
+const Keygrip = require("keygrip");
 const help = require("./help.js");
 const PORT = 8080;
 
+const keys = new Keygrip(["SEKRIT2", "SEKRIT1"]);
+
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: keys, //['string'],
+}));
 
 const urlDatabase = {
   "b2xVn2": {
@@ -24,18 +31,18 @@ const userList = {
   "supGuy": {
     id: "supGuy",
     email: "123@123.com",
-    password: "123"
+    password: bcrypt.hashSync('123', 10),
   },
   "natta": {
     id: "natta",
     email: "natta@example.com",
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync('dishwasher-funk', 10),
   },
 };
 
 //GET Methods
 app.get("/", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.cookies);
+  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
   res.render("urls_index", templateVars );
 });
 
@@ -44,27 +51,29 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls_read", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.cookies);
+  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
   res.render("urls_read", templateVars);
 });
 
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params['shortURL']];
-  res.redirect(longURL);
+app.get("/u/:shortUrl", (req, res) => {
+  const short = req.params['shortUrl'];
+  const dataRecord = urlDatabase[short];
+  console.log(dataRecord.longUrl);
+  res.redirect(dataRecord.longUrl);
 });
 
 app.get("/urls_update", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.cookies);
+  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
   res.render("urls_update", templateVars);
 });
 
 app.get("/urls_delete", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.cookies);
+  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
   res.render("urls_delete", templateVars);
 });
 
 app.get("/urls_create", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.cookies);
+  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
 
   res.render("urls_create", templateVars);
 });
@@ -74,7 +83,8 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.cookies);
+
+  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
   res.render('login', templateVars);
 });
 
@@ -82,7 +92,11 @@ app.get("/login", (req, res) => {
 
 app.post("/urls_create", (req, res) => {
   const newStr = help.genRandomStr();
-  urlDatabase[newStr] = req.body.longURL;
+  const newUrl = {
+    longUrl: req.body.longURL,
+    ownerId: req.session["user_id"],
+  };
+  urlDatabase[newStr] = newUrl;
   res.redirect('/');
 });
 
@@ -92,12 +106,12 @@ app.post("/urls_delete", (req, res) => {
 });
 
 app.post("/urls_update", (req, res) => {
-  console.log(req.cookies);
-  updatedUrl = {
+  console.log(req.session);
+  const updatedUrl = {
     longUrl: req.body.newURL,
-    ownerId: req.cookies["user_id"],
+    ownerId: req.session["user_id"],
   };
-  urlDatabase[req.body.shortURL] = req.body.newURL;
+  urlDatabase[req.body.shortURL] = updatedUrl;
   res.redirect('/');
 });
 
@@ -111,13 +125,13 @@ app.post("/login", (req, res) => {
     );
     return;
   }
-  res.cookie('user_id', user.id);
-  res.redirect('/urls');
+  req.session.user_id = user.id;
+  res.redirect('/');
 
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id');
+  res.clearCookie('session');
   res.redirect('/urls');
 });
 
@@ -134,11 +148,11 @@ app.post("/register", (req, res) => {
     const newUser = {
       id: newUserId,
       email: req.body.email,
-      password: req.body.password,
+      password: bcrypt.hashSync(req.body.password, 10),
     };
 
     userList[newUserId] = newUser;
-    res.cookie('user_id', newUser.id);
+    req.session.user_id = newUser.id;
     res.redirect('/urls');
   }
 })

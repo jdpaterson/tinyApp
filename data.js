@@ -1,4 +1,4 @@
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const help = require('./help');
 
 const userList = {
@@ -37,7 +37,7 @@ const urlDatabase = {
       return this.visits === undefined ? 0 : this.visits.length;
     },
     uniqueVisitors () {
-      return this.visits === undefined ? 0 : help.countUniqueVisitors(visitsDB, this.visits);      
+      return this.visits === undefined ? 0 : help.countUniqueVisitors(visitsDB, this.visits);
     },
     createdTime: new Date(2008, 06, 10, 5, 10, 12, 00),
   },

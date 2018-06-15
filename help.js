@@ -1,5 +1,5 @@
 const randomString = require('randomString');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const _ = require('underscore');
 
 
@@ -8,29 +8,12 @@ function generateRandomString() {
 }
 
 function isEmptyString(str){
-  if (str === ''){
-    return true;
-  }else{
-    return false;
-  }
-}
-
-function userExists(userList, email){
-  for (user in userList){
-    if (userList[user].email === email){
-      return true;
-    }
-  }
-  return false;
+  return str === '' ? true : false;
 }
 
 function getUserById(userId, userList){
-  for (userKey in userList){
-    if (userId === userList[userKey].id){
-      return userList[userKey];
-    }
-  }
-  return false;
+  return _.pick(userList, userId)[userId];
+  //Else return false?
 }
 
 function getUserByEmail(userEmail, userList){
@@ -39,19 +22,21 @@ function getUserByEmail(userEmail, userList){
       return userList[userKey];
     }
   }
-  return false;
+  return null;
+}
+
+function passwordMatches(email, password, userList){
+  const user = getUserByEmail(email, userList);
+  return bcrypt.compareSync(password,  user.password)
 }
 
 function setTemplateVars(urls, userData, session){
-  const userURLs = {};
   const templateVars = {
     urls: urls,
   };
   if (session !== undefined){
     if (session["user_id"] !== undefined){
       const user = getUserById(session["user_id"], userData);
-      var userUrls = getUserUrls(user.id, urls);
-
       if (user){
         templateVars.user = user;
         templateVars.user.userUrls = getUserUrls(user.id, urls);
@@ -71,54 +56,56 @@ function getUserUrls(userId, urls){
   return userUrls;
 }
 
-function passwordMatches(email, password, userList){
-  for (user in userList){
-    if (email === userList[user].email){
-      return bcrypt.compareSync(password,  userList[user].password)
-    }
-  }
-  return false;
-}
-
 function urlExists(url, urlList){
-  if (Object.keys(urlList).indexOf(url) > -1){
-    return true;
-  }else{
+  if (_.pick(urlList, url).id === undefined){
     return false;
+  }else{
+    return true;
   }
 }
 
 function getUrlByShort(shortUrl, urlList){
-  for (url in urlList){
-    if (url === shortUrl){
-      return urlList[url];
-    }
-  }
-  return false;
+  return _.pick(urlList, url);
 }
 
-function addVisit(shortUrl, urlList, visitor_id, visitsDB){
+function addVisit(url, visitor_id, visitsDB){
   var vistId = generateRandomString();
   const visit = {
     id: vistId,
     visitor_id: visitor_id,
-    url: shortUrl,
+    url: url.id,
     createdTime: Date.now(),
   };
-  if (urlList[shortUrl].visits === undefined){
-    urlList[shortUrl].visits = [];
+  if (url.visits === undefined){
+    url.visits = [];
   }
-  urlList[shortUrl].visits.push(visit.id);
+  url.visits.push(visit.id);
   visitsDB[vistId] = visit;
 }
 
-function countUniqueVisitors(visitsDB, urlVisits){
+const countUniqueVisitors = function(visitsDB, urlVisits){
   let numOfVisits = _.pick(visitsDB, ...urlVisits);
   let visitors = [];
   for (let visit in numOfVisits ){
     visitors.push(numOfVisits[visit].visitor_id);
   }
   return _.uniq(visitors).length;
+}
+
+function genNewUrl(req, visitsDB){
+  const newStr = this.genRandomStr();
+  const newUrl = {
+    id: newStr,
+    longUrl: req.body.longURL,
+    ownerId: req.session["user_id"],
+    timesVisited () {
+      return this.visits === undefined ? 0 : this.visits.length;
+    },
+    uniqueVisitors () {
+      return this.visits === undefined ? 0 : this.countUniqueVisitors(visitsDB, this.visits);
+    },
+  };
+  return newUrl;
 }
 
 module.exports = {
@@ -130,7 +117,7 @@ module.exports = {
   getUserByEmail: getUserByEmail,
   passwordMatches: passwordMatches,
   isEmptyString: isEmptyString,
-  userExists: userExists,
   addVisit: addVisit,
   countUniqueVisitors: countUniqueVisitors,
+  genNewUrl: genNewUrl,
 }

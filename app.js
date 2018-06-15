@@ -2,7 +2,8 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
+//const bcrypt = require('bcryptjs');
 const Keygrip = require("keygrip");
 const methodOverride = require("method-override");
 const _ = require('underscore');
@@ -67,13 +68,13 @@ app.get("/urls/:id", (req, res) => {
       error:'You are not logged in, please register or login'
     });
   }else{
-    if (!help.urlExists(req.params.id, urlDatabase)){
+    const url = help.getUrlByShort(req.params.id, urlDatabase);
+    if (url.id === undefined){
       res.status(404).render('urls_read',{error:'We can\'t find an Id matching that value.'});
     }else{
-      //User owns key
-      if(Object.keys(help.getUserUrls(req.session.user_id, urlDatabase)).indexOf(req.params.id) > -1){
+      if(url.ownerId === req.session.user_id){
         const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
-        templateVars.urlToEdit = help.getUrlByShort(req.params.id, urlDatabase);
+        templateVars.urlToEdit = url;
         res.render('url_edit', templateVars);
       }else{
         res.status(404).send
@@ -85,14 +86,15 @@ app.get("/urls/:id", (req, res) => {
 
 //Redirect to short URL
 app.get("/u/:shortUrl", (req, res) => {
-  const short = req.params['shortUrl'];
-  const dataRecord = urlDatabase[short];
+
+  const url = urlDatabase[req.params['shortUrl']];
 
   if (req.session.visitor_id === undefined){
     req.session.visitor_id = help.genRandomStr();
   }
-  help.addVisit(short, urlDatabase, req.session.visitor_id, visitsDB);
-  res.redirect(dataRecord.longUrl);
+
+  help.addVisit(url, req.session.visitor_id, visitsDB);
+  res.redirect(url.longUrl);
 });
 
 app.get("/register", (req, res) => {
@@ -108,19 +110,8 @@ app.get("/login", (req, res) => {
 
 //Add new URL
 app.post("/urls", (req, res) => {
-  const newStr = help.genRandomStr();
-  const newUrl = {
-    id: newStr,
-    longUrl: req.body.longURL,
-    ownerId: req.session["user_id"],
-    timesVisited () {
-      return this.visits === undefined ? 0 : this.visits.length;
-    },
-    uniqueVisitors () {
-      return this.visits === undefined ? 0 : help.countUniqueVisitors(visitsDB, this.visits);      
-    },
-  };
-  urlDatabase[newStr] = newUrl;
+  const newUrl = help.genNewUrl(req, visitsDB);
+  urlDatabase[newUrl.id] = newUrl;
   res.redirect('/');
 });
 
@@ -148,7 +139,7 @@ app.post("/login", (req, res) => {
     res.status(404).render('login', {error:'You are not yet a user, please register'});
   }else if(!help.passwordMatches(req.body.userEmail, req.body.password, userList)){
     res.status(404).render('login',
-      {error: 'The username/password comination you entered does not match our records'}
+      {error: 'The username/password combination you entered does not match our records'}
     );
     return;
   }
@@ -170,7 +161,7 @@ app.post("/register", (req, res) => {
       help.isEmptyString(req.body.password)
     ){
     res.status(404).render('register', {error: 'Ensure all fields are populated.'});
-  }else if (help.userExists(userList, req.body.email)){
+  }else if (help.getUserByEmail(req.body.email, userList) !== null){
     res.status(404).render('register',
     {error: 'Email already exists, login or choose a different email.'});
   }else{

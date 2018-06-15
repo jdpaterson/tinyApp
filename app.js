@@ -5,7 +5,12 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 const Keygrip = require("keygrip");
 const methodOverride = require("method-override");
+const _ = require('underscore');
+const urlDatabase = require("./data.js").urlDatabase;
+const visitsDB = require("./data.js").visitsDB;
+const userList = require("./data.js").userList;
 const help = require("./help.js");
+
 const PORT = 8080;
 
 const keys = new Keygrip(["SEKRIT2", "SEKRIT1"]);
@@ -15,34 +20,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
   keys: keys,
+  maxAge: 24 * 60 * 60 * 1000 * 365,
 }));
 app.use(methodOverride('_method'));
-
-const urlDatabase = {
-  "b2xVn2": {
-    id: "b2xVn2",
-    longUrl: "http://www.lighthouselabs.ca",
-    ownerId: "natta",
-  },
-  "9sm5xK": {
-    id: "9sm5xK",
-    longUrl: "http://www.google.com",
-    ownerId: "supGuy"
-  },
-};
-
-const userList = {
-  "supGuy": {
-    id: "supGuy",
-    email: "123@123.com",
-    password: bcrypt.hashSync('123', 10),
-  },
-  "natta": {
-    id: "natta",
-    email: "natta@example.com",
-    password: bcrypt.hashSync('dishwasher-funk', 10),
-  },
-};
 
 //GET Methods
 
@@ -57,6 +37,9 @@ app.get("/", (req, res) => {
 
 //View URLs page
 app.get("/urls", (req, res) => {
+  if (req.session.visitor_id === undefined){
+    req.session.visitor_id = help.genRandomStr();
+  }
   if (req.session.user_id === undefined){
     res.status(404).render('login', {
       error:'You are not logged in, please register or login'
@@ -99,21 +82,17 @@ app.get("/urls/:id", (req, res) => {
     }
   }
 });
+
+//Redirect to short URL
 app.get("/u/:shortUrl", (req, res) => {
   const short = req.params['shortUrl'];
   const dataRecord = urlDatabase[short];
-  console.log(dataRecord.longUrl);
+
+  if (req.session.visitor_id === undefined){
+    req.session.visitor_id = help.genRandomStr();
+  }
+  help.addVisit(short, urlDatabase, req.session.visitor_id, visitsDB);
   res.redirect(dataRecord.longUrl);
-});
-
-app.get("/urls_update", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
-  res.render("urls_update", templateVars);
-});
-
-app.get("/urls_delete", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
-  res.render("urls_delete", templateVars);
 });
 
 app.get("/register", (req, res) => {
@@ -121,7 +100,6 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-
   const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
   res.render('login', templateVars);
 });
@@ -135,6 +113,12 @@ app.post("/urls", (req, res) => {
     id: newStr,
     longUrl: req.body.longURL,
     ownerId: req.session["user_id"],
+    timesVisited () {
+      return this.visits === undefined ? 0 : this.visits.length;
+    },
+    uniqueVisitors () {
+      return this.visits === undefined ? 0 : help.countUniqueVisitors(visitsDB, this.visits);      
+    },
   };
   urlDatabase[newStr] = newUrl;
   res.redirect('/');
@@ -148,7 +132,6 @@ app.delete("/urls/:id", (req, res) => {
 
 //Update existing URL
 app.put("/urls/:id", (req, res) => {
-  console.log(req.params.id);
   const updatedUrl = {
     id: req.params.id,
     longUrl: req.body.newURL,

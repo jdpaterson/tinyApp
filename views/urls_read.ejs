@@ -6,8 +6,11 @@
 <% }else{ %>
 <% for (let key in user.userUrls){ %>
   <% const longUrl = user.userUrls[key].longUrl; %>
+  <% const timesVisited = urls[key].timesVisited(); %>
+  <% const uniqueVisitors = urls[key].uniqueVisitors(); %>
   <a href="/urls/<%=key%>">Edit</a>
-  <p><%=key%> - <%= longUrl %>
+  <p><%=key%> - <%= longUrl %> - Times Visited: <%= timesVisited %> -
+    Unique Visitors: <%= uniqueVisitors %>
   <a class="btn btn-primary" href="/u/<%=key%>" target="_blank"> Do the Redirect! </a></p>
   <form method="POST" action="/urls/<%=key%>?_method=DELETE" >
     <input type="submit" value="Delete" />

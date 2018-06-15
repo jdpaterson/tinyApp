@@ -1,5 +1,7 @@
 const randomString = require('randomString');
 const bcrypt = require('bcryptjs');
+const _ = require('underscore');
+
 
 function generateRandomString() {
   return randomString.generate(6);
@@ -95,6 +97,30 @@ function getUrlByShort(shortUrl, urlList){
   return false;
 }
 
+function addVisit(shortUrl, urlList, visitor_id, visitsDB){
+  var vistId = generateRandomString();
+  const visit = {
+    id: vistId,
+    visitor_id: visitor_id,
+    url: shortUrl,
+    createdTime: Date.now(),
+  };
+  if (urlList[shortUrl].visits === undefined){
+    urlList[shortUrl].visits = [];
+  }
+  urlList[shortUrl].visits.push(visit.id);
+  visitsDB[vistId] = visit;
+}
+
+function countUniqueVisitors(visitsDB, urlVisits){
+  let numOfVisits = _.pick(visitsDB, ...urlVisits);
+  let visitors = [];
+  for (let visit in numOfVisits ){
+    visitors.push(numOfVisits[visit].visitor_id);
+  }
+  return _.uniq(visitors).length;
+}
+
 module.exports = {
   setTemplateVars: setTemplateVars,
   urlExists: urlExists,
@@ -105,4 +131,6 @@ module.exports = {
   passwordMatches: passwordMatches,
   isEmptyString: isEmptyString,
   userExists: userExists,
+  addVisit: addVisit,
+  countUniqueVisitors: countUniqueVisitors,
 }

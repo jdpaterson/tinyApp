@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 const Keygrip = require("keygrip");
+const methodOverride = require("method-override");
 const help = require("./help.js");
 const PORT = 8080;
 
@@ -15,6 +16,7 @@ app.use(cookieSession({
   name: 'session',
   keys: keys,
 }));
+app.use(methodOverride('_method'));
 
 const urlDatabase = {
   "b2xVn2": {
@@ -43,6 +45,8 @@ const userList = {
 };
 
 //GET Methods
+
+//Home page
 app.get("/", (req, res) => {
   if (req.session.user_id === undefined){
     res.redirect("/login");
@@ -51,6 +55,7 @@ app.get("/", (req, res) => {
   }
 });
 
+//View URLs page
 app.get("/urls", (req, res) => {
   if (req.session.user_id === undefined){
     res.status(404).render('login', {
@@ -61,6 +66,8 @@ app.get("/urls", (req, res) => {
     res.render("urls_read", templateVars);
   }
 });
+
+//Add a new URL page
 app.get("/urls/new", (req, res) => {
   if (req.session.user_id === undefined){
     res.status(404).render('login', {error:'You are not logged in, please register or login'});
@@ -69,6 +76,8 @@ app.get("/urls/new", (req, res) => {
     res.render("urls_new", templateVars);
   }
 });
+
+//Update a URL page
 app.get("/urls/:id", (req, res) => {
   if (req.session.user_id === undefined){
     res.status(404).render('login', {
@@ -90,11 +99,6 @@ app.get("/urls/:id", (req, res) => {
     }
   }
 });
-app.get("/urls_read", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
-  res.render("urls_read", templateVars);
-});
-
 app.get("/u/:shortUrl", (req, res) => {
   const short = req.params['shortUrl'];
   const dataRecord = urlDatabase[short];
@@ -124,6 +128,7 @@ app.get("/login", (req, res) => {
 
 //POST Methods
 
+//Add new URL
 app.post("/urls", (req, res) => {
   const newStr = help.genRandomStr();
   const newUrl = {
@@ -135,12 +140,14 @@ app.post("/urls", (req, res) => {
   res.redirect('/');
 });
 
-app.post("/urls/:id/delete", (req, res) => {
+//Delete existing URL
+app.delete("/urls/:id", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect('/urls');
 });
 
-app.post("/urls/:id", (req, res) => {
+//Update existing URL
+app.put("/urls/:id", (req, res) => {
   console.log(req.params.id);
   const updatedUrl = {
     id: req.params.id,
@@ -151,6 +158,7 @@ app.post("/urls/:id", (req, res) => {
   res.redirect('/');
 });
 
+//Login user
 app.post("/login", (req, res) => {
   const user = help.getUserByEmail(req.body.userEmail, userList);
   if (!user){
@@ -166,11 +174,13 @@ app.post("/login", (req, res) => {
 
 });
 
+//Logout User
 app.post("/logout", (req, res) => {
   res.clearCookie('session');
   res.redirect('/urls');
 });
 
+//Register new user
 app.post("/register", (req, res) => {
   const newUserId = help.genRandomStr();
   if (help.isEmptyString(req.body.email) ||

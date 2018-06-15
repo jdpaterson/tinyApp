@@ -8,8 +8,8 @@
   <% const longUrl = user.userUrls[key].longUrl; %>
   <a href="/urls/<%=key%>">Edit</a>
   <p><%=key%> - <%= longUrl %>
-  <a class="btn btn-primary" href="/u/<%=key%>"> Do the Redirect! </a></p>
-  <form method="POST" action="/urls/<%=key%>/delete" >
+  <a class="btn btn-primary" href="/u/<%=key%>" target="_blank"> Do the Redirect! </a></p>
+  <form method="POST" action="/urls/<%=key%>?_method=DELETE" >
     <input type="submit" value="Delete" />
   </form>
 <% }} %>

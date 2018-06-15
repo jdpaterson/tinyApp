@@ -6,7 +6,7 @@
   </style>
 </head>
   <nav>
-    <% if (locals.user) { %>
+    <% if (locals.user !== undefined) { %>
       You are logged in as <%= locals.user.email %>.
       <form method="POST" action="/logout" >
         <input type="submit" value="Logout" />

@@ -20,7 +20,7 @@ const urlDatabase = {
   "b2xVn2": {
     id: "b2xVn2",
     longUrl: "http://www.lighthouselabs.ca",
-    ownerId: "supGuy",
+    ownerId: "natta",
   },
   "9sm5xK": {
     id: "9sm5xK",
@@ -61,6 +61,14 @@ app.get("/urls", (req, res) => {
     res.render("urls_read", templateVars);
   }
 });
+app.get("/urls/new", (req, res) => {
+  if (req.session.user_id === undefined){
+    res.status(404).render('login', {error:'You are not logged in, please register or login'});
+  }else{
+    const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
+    res.render("urls_new", templateVars);
+  }
+});
 app.get("/urls/:id", (req, res) => {
   if (req.session.user_id === undefined){
     res.status(404).render('login', {
@@ -76,7 +84,8 @@ app.get("/urls/:id", (req, res) => {
         templateVars.urlToEdit = help.getUrlByShort(req.params.id, urlDatabase);
         res.render('url_edit', templateVars);
       }else{
-        res.status(404).render('You do not own that key');
+        res.status(404).send
+        ('You do not own that key');
       }
     }
   }
@@ -84,15 +93,6 @@ app.get("/urls/:id", (req, res) => {
 app.get("/urls_read", (req, res) => {
   const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
   res.render("urls_read", templateVars);
-});
-app.get("/urls_new", (req, res) => {
-  if (req.session.user_id === undefined){
-    res.status(404).render('login', {error:'You are not logged in, please register or login'});
-  }else{
-    const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
-    res.render("urls_new", templateVars);
-  }
-
 });
 
 app.get("/u/:shortUrl", (req, res) => {

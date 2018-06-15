@@ -42,7 +42,6 @@ function getUserByEmail(userEmail, userList){
 
 function setTemplateVars(urls, userData, session){
   const userURLs = {};
-
   const templateVars = {
     urls: urls,
   };

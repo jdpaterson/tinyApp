@@ -5,10 +5,12 @@
   <a href="/login" >You must login to view urls.</a>
 <% }else{ %>
 <% for (let key in user.userUrls){ %>
+  <% const longUrl = user.userUrls[key].longUrl; %>
   <a href="/urls/<%=key%>">Edit</a>
-  <p><%= key %> - <%= user.userUrls[key].longUrl %> </p>
+  <p><%=key%> - <%= longUrl %>
+  <a class="btn btn-primary" href="/u/<%=key%>"> Do the Redirect! </a></p>
   <form method="POST" action="/urls/<%=key%>/delete" >
     <input type="submit" value="Delete" />
   </form>
 <% }} %>
-<a href="/urls_new">Create new URL</a>
+<a href="/urls/new">Create a new Short Link</a>

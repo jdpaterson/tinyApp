@@ -94,7 +94,7 @@ const countUniqueVisitors = function(visitsDB, urlVisits){
   for (let visit in numOfVisits ){
     visitors.push(numOfVisits[visit].visitor_id);
   }
-  //return 'Some string';
+  
   return _.uniq(visitors).length;
 }
 
@@ -108,7 +108,7 @@ function genNewUrl(req, visitsDB){
     timesVisited () {
       return this.visits.length;
     },
-    uniqueVisitors: () {
+    uniqueVisitors () {
       return countUniqueVisitors(visitsDB, this.visits);
     },
   };

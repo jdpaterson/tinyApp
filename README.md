@@ -4,7 +4,7 @@ TinyPP is a full stack web application build with Node that allows users to shor
 ## Final Product
 
 !["URLs View"](https://github.com/jdpaterson/tinyApp/blob/master/docs/register-page.png)
-!["Login Page"](https://github.com/jdpaterson/tinyApp/blob/master/docs/register-page.png)
+!["Login Page"](https://github.com/jdpaterson/tinyApp/blob/master/docs/urls-page.png)
 
 ## Dependencies
 

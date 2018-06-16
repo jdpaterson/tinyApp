@@ -5,8 +5,7 @@
   <a href="/login" >You must login to view urls.</a>
 <% }else{ %>
 <% for (let key in user.userUrls){ %>
-  <% const longUrl = user.userUrls[key].longUrl; %>
-  <% console.log(urls[key].visits); %>
+  <% const longUrl = user.userUrls[key].longUrl; %>  
   <% const timesVisited = urls[key].visits.length; %>
   <% const uniqueVisitors = urls[key].uniqueVisitors(visitsDB, timesVisited); %>
   <a href="/urls/<%=key%>">Edit</a>

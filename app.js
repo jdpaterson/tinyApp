@@ -46,7 +46,7 @@ app.get("/urls", (req, res) => {
       error:'You are not logged in, please register or login'
     });
   }else{
-    const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
+    const templateVars = help.setTemplateVars(urlDatabase, userList, req.session, visitsDB);
     res.render("urls_read", templateVars);
   }
 });
@@ -56,7 +56,7 @@ app.get("/urls/new", (req, res) => {
   if (req.session.user_id === undefined){
     res.status(404).render('login', {error:'You are not logged in, please register or login'});
   }else{
-    const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
+    const templateVars = help.setTemplateVars(urlDatabase, userList, req.session, visitsDB);
     res.render("urls_new", templateVars);
   }
 });
@@ -73,7 +73,7 @@ app.get("/urls/:id", (req, res) => {
       res.status(404).render('urls_read',{error:'We can\'t find an Id matching that value.'});
     }else{
       if(url.ownerId === req.session.user_id){
-        const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
+        const templateVars = help.setTemplateVars(urlDatabase, userList, req.session, visitsDB);
         templateVars.urlToEdit = url;
         res.render('url_edit', templateVars);
       }else{
@@ -102,7 +102,7 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session);
+  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session, visitsDB);
   res.render('login', templateVars);
 });
 
@@ -112,12 +112,6 @@ app.get("/login", (req, res) => {
 app.post("/urls", (req, res) => {
   const newUrl = help.genNewUrl(req, visitsDB);
   urlDatabase[newUrl.id] = newUrl;
-  res.redirect('/');
-});
-
-//Delete existing URL
-app.delete("/urls/:id", (req, res) => {
-  delete urlDatabase[req.params.id];
   res.redirect('/urls');
 });
 
@@ -130,6 +124,12 @@ app.put("/urls/:id", (req, res) => {
   };
   urlDatabase[req.params.id] = updatedUrl;
   res.redirect('/');
+});
+
+//Delete existing URL
+app.delete("/urls/:id", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect('/urls');
 });
 
 //Login user

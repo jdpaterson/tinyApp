@@ -7,7 +7,8 @@
 <% for (let key in user.userUrls){ %>
   <% const longUrl = user.userUrls[key].longUrl; %>
   <% const timesVisited = urls[key].timesVisited(); %>
-  <% const uniqueVisitors = urls[key].uniqueVisitors(); %>
+  <% console.log(urls[key].uniqueVisitors()); %>
+  <% const uniqueVisitors = urls[key].uniqueVisitors(visitsDB, timesVisited); %>
   <a href="/urls/<%=key%>">Edit</a>
   <p><%=key%> - <%= longUrl %> - Times Visited: <%= timesVisited %> -
     Unique Visitors: <%= uniqueVisitors %>

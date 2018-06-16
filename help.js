@@ -30,7 +30,7 @@ function passwordMatches(email, password, userList){
   return bcrypt.compareSync(password,  user.password)
 }
 
-function setTemplateVars(urls, userData, session){
+function setTemplateVars(urls, userData, session, visitsDB){
   const templateVars = {
     urls: urls,
   };
@@ -40,6 +40,7 @@ function setTemplateVars(urls, userData, session){
       if (user){
         templateVars.user = user;
         templateVars.user.userUrls = getUserUrls(user.id, urls);
+        templateVars.visitsDB = visitsDB;
       }
     }
   }
@@ -69,6 +70,9 @@ function getUrlByShort(shortUrl, urlList){
 }
 
 function addVisit(url, visitor_id, visitsDB){
+  console.log('URL: ', url);
+  console.log('VID: ', visitor_id);
+  console.log('VDB: ', visitsDB);
   var vistId = generateRandomString();
   const visit = {
     id: vistId,
@@ -81,6 +85,7 @@ function addVisit(url, visitor_id, visitsDB){
   }
   url.visits.push(visit.id);
   visitsDB[vistId] = visit;
+
 }
 
 const countUniqueVisitors = function(visitsDB, urlVisits){
@@ -89,6 +94,7 @@ const countUniqueVisitors = function(visitsDB, urlVisits){
   for (let visit in numOfVisits ){
     visitors.push(numOfVisits[visit].visitor_id);
   }
+  //return 'Some string';
   return _.uniq(visitors).length;
 }
 
@@ -98,11 +104,12 @@ function genNewUrl(req, visitsDB){
     id: newStr,
     longUrl: req.body.longURL,
     ownerId: req.session["user_id"],
+    visits: [],
     timesVisited () {
-      return this.visits === undefined ? 0 : this.visits.length;
+      return this.visits.length;
     },
-    uniqueVisitors () {
-      return this.visits === undefined ? 0 : this.countUniqueVisitors(visitsDB, this.visits);
+    uniqueVisitors: () {
+      return countUniqueVisitors(visitsDB, this.visits);
     },
   };
   return newUrl;

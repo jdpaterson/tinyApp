@@ -65,8 +65,8 @@ function urlExists(url, urlList){
   }
 }
 
-function getUrlByShort(shortUrl, urlList){
-  return _.pick(urlList, url);
+function getUrlByShort(shortUrl, urlList){  
+  return _.pick(urlList, shortUrl);
 }
 
 function addVisit(url, visitor_id, visitsDB){
@@ -94,7 +94,7 @@ const countUniqueVisitors = function(visitsDB, urlVisits){
   for (let visit in numOfVisits ){
     visitors.push(numOfVisits[visit].visitor_id);
   }
-  
+
   return _.uniq(visitors).length;
 }
 

@@ -3,7 +3,6 @@ const app = express();
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-//const bcrypt = require('bcryptjs');
 const Keygrip = require("keygrip");
 const methodOverride = require("method-override");
 const _ = require('underscore');
@@ -68,7 +67,8 @@ app.get("/urls/:id", (req, res) => {
       error:'You are not logged in, please register or login'
     });
   }else{
-    const url = help.getUrlByShort(req.params.id, urlDatabase);
+    const url = help.getUrlByShort(req.params.id, urlDatabase)[req.params.id];
+
     if (url.id === undefined){
       res.status(404).render('urls_read',{error:'We can\'t find an Id matching that value.'});
     }else{
@@ -117,11 +117,9 @@ app.post("/urls", (req, res) => {
 
 //Update existing URL
 app.put("/urls/:id", (req, res) => {
-  const updatedUrl = {
-    id: req.params.id,
-    longUrl: req.body.newURL,
-    ownerId: req.session["user_id"],
-  };
+  const updatedUrl = help.genNewUrl(req, visitsDB);
+  updatedUrl.longUrl = req.body.newURL;
+  
   urlDatabase[req.params.id] = updatedUrl;
   res.redirect('/');
 });

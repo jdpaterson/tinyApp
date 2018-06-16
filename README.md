@@ -3,8 +3,8 @@ TinyPP is a full stack web application build with Node that allows users to shor
 
 ## Final Product
 
-!["screenshot description"](#)
-!["screenshot description"](#)
+!["URLs View"](https://github.com/jdpaterson/tinyApp/blob/master/docs/register-page.png)
+!["Login Page"](https://github.com/jdpaterson/tinyApp/blob/master/docs/register-page.png)
 
 ## Dependencies
 
@@ -23,3 +23,7 @@ TinyPP is a full stack web application build with Node that allows users to shor
 
 - Install all dependencies (using the `npm install` command).
 - Run the development web server using the `node app.js` command.
+
+## Added Features
+
+- The "Track Unique Visitors" functionality can be tested by clicking the "Do Redirect" button, and then copying the URL from that button and entering it into a Private Browsing session.

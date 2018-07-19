@@ -12,7 +12,6 @@ const userList = require("./data.js").userList;
 const help = require("./help.js");
 
 const PORT = 8080;
-
 const keys = new Keygrip(["SEKRIT2", "SEKRIT1"]);
 
 app.set("view engine", "ejs");
@@ -119,7 +118,7 @@ app.post("/urls", (req, res) => {
 app.put("/urls/:id", (req, res) => {
   const updatedUrl = help.genNewUrl(req, visitsDB);
   updatedUrl.longUrl = req.body.newURL;
-  
+
   urlDatabase[req.params.id] = updatedUrl;
   res.redirect('/');
 });

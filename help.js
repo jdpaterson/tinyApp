@@ -1,7 +1,7 @@
 const randomString = require('randomString');
 const bcrypt = require('bcrypt');
 const _ = require('underscore');
-
+const {User, Url, Visit} = require("./db/schema");
 
 function generateRandomString() {
   return randomString.generate(6);
@@ -16,17 +16,15 @@ function getUserById(userId, userList){
   //Else return false?
 }
 
-function getUserByEmail(userEmail, userList){
-  for (userKey in userList){
-    if (userEmail === userList[userKey].email){
-      return userList[userKey];
+function getUserByEmail(userEmail){
+  return User.findOne({
+    where: {
+      email: userEmail
     }
-  }
-  return null;
+  })
 }
 
-function passwordMatches(email, password, userList){
-  const user = getUserByEmail(email, userList);
+function passwordMatches(user, password){
   return bcrypt.compareSync(password,  user.password)
 }
 
@@ -47,14 +45,12 @@ function setTemplateVars(urls, userData, session, visitsDB){
   return templateVars;
 }
 
-function getUserUrls(userId, urls){
-  const userUrls = {};
-  for (let url in urls){
-    if (urls[url].ownerId === userId ){
-      userUrls[url] = urls[url];
+function getUserUrls(user, urls){
+  return Url.findAll({
+    where: {
+      owner_id: user.id
     }
-  }
-  return userUrls;
+  })
 }
 
 function urlExists(url, urlList){
@@ -65,7 +61,7 @@ function urlExists(url, urlList){
   }
 }
 
-function getUrlByShort(shortUrl, urlList){  
+function getUrlByShort(shortUrl, urlList){
   return _.pick(urlList, shortUrl);
 }
 

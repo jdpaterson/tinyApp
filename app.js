@@ -4,16 +4,12 @@ const app = express();
 const bodyParser = require("body-parser");
 const methodOverride = require("method-override");
 
-
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const Keygrip = require("keygrip");
 
-
 const _ = require('underscore');
-const urlDatabase = require("./data.js").urlDatabase;
-const visitsDB = require("./data.js").visitsDB;
-const userList = require("./data.js").userList;
+const {User, Url, Visit} = require("./db/schema");
 const help = require("./help.js");
 
 const PORT = 8080;
@@ -32,28 +28,101 @@ app.use(methodOverride('_method'));
 
 //Home page
 app.get("/", (req, res) => {
-  if (req.session.user_id === undefined){
+  if (req.session.user === undefined){
     res.redirect("/login");
   }else{
     res.redirect("/urls");
   }
-});
+})
+
+app.get("/login", (req, res) => {
+  if (req.session.user === undefined){
+    res.render("login");
+  }else{
+    res.redirect("/urls");
+  }
+})
 
 //View URLs page
 app.get("/urls", (req, res) => {
-  if (req.session.visitor_id === undefined){
-    req.session.visitor_id = help.genRandomStr();
-  }
-  if (req.session.user_id === undefined){
-    res.status(404).render('login', {
-      error:'You are not logged in, please register or login'
-    });
+  if (req.session.user === undefined){
+    console.log("REQ SESSION USER UNDEFINED");
+    res.status(404).redirect('/login');
   }else{
-    const templateVars = help.setTemplateVars(urlDatabase, userList, req.session, visitsDB);
-    res.render("urls_read", templateVars);
+    console.log("REQ SESSION USER DEFINED");
+    help.getUserUrls(req.session.user).then((urls) => {
+      res.render("urls_read", {
+        urls: urls,
+        user: req.session.user
+      })
+    })
   }
+})
+
+//Login user
+app.post("/login", (req, res) => {
+  help.getUserByEmail(req.body.userEmail)
+  .then((user) => {
+    if (!user){
+      res.status(404).render('login', {
+        error:'You are not yet a user, please register'
+      })
+    }else if(!help.passwordMatches(user, req.body.password)){
+      res.status(404).render('login',{
+        error: `The username/password combination you entered does
+        not match our records`
+      })
+      return;
+    }else{
+      req.session.user = user;
+      res.redirect('/urls');
+    }
+  })
+})
+
+//Logout User
+app.post("/logout", (req, res) => {
+  res.clearCookie('session');
+  res.redirect('/');
+})
+
+app.get("/register", (req, res) => {
+  res.render('register');
 });
 
+app.get("/login", (req, res) => {
+  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session, visitsDB);
+  res.render('login', templateVars);
+});
+
+//Register new user
+app.post("/register", (req, res) => {
+  const newUserId = help.genRandomStr();
+  if (help.isEmptyString(req.body.email) ||
+      help.isEmptyString(req.body.password)
+    ){
+    res.status(404).render('register', {error: 'Ensure all fields are populated.'});
+  }else{
+    help.getUserByEmail(req.body.email).then((user) => {
+      if (user){
+        res.status(404).render('register',{
+          error: 'Email already exists, login or choose a different email.'
+        });
+      }else{
+        User.create({
+          email: req.body.email,
+          password: bcrypt.hashSync(req.body.password, 10),
+        }).then((user) => {
+          console.log('MY USER: ', user);
+          req.session.user = user;
+          res.redirect('/urls');
+        })
+      }
+    })
+  }
+})
+
+/*
 //Add a new URL page
 app.get("/urls/new", (req, res) => {
   if (req.session.user_id === undefined){
@@ -101,15 +170,6 @@ app.get("/u/:shortUrl", (req, res) => {
   res.redirect(url.longUrl);
 });
 
-app.get("/register", (req, res) => {
-  res.render('register');
-});
-
-app.get("/login", (req, res) => {
-  const templateVars = help.setTemplateVars(urlDatabase, userList, req.session, visitsDB);
-  res.render('login', templateVars);
-});
-
 //POST Methods
 
 //Add new URL
@@ -134,50 +194,7 @@ app.delete("/urls/:id", (req, res) => {
   res.redirect('/urls');
 });
 
-//Login user
-app.post("/login", (req, res) => {
-  const user = help.getUserByEmail(req.body.userEmail, userList);
-  if (!user){
-    res.status(404).render('login', {error:'You are not yet a user, please register'});
-  }else if(!help.passwordMatches(req.body.userEmail, req.body.password, userList)){
-    res.status(404).render('login',
-      {error: 'The username/password combination you entered does not match our records'}
-    );
-    return;
-  }
-  req.session.user_id = user.id;
-  res.redirect('/');
-
-});
-
-//Logout User
-app.post("/logout", (req, res) => {
-  res.clearCookie('session');
-  res.redirect('/urls');
-});
-
-//Register new user
-app.post("/register", (req, res) => {
-  const newUserId = help.genRandomStr();
-  if (help.isEmptyString(req.body.email) ||
-      help.isEmptyString(req.body.password)
-    ){
-    res.status(404).render('register', {error: 'Ensure all fields are populated.'});
-  }else if (help.getUserByEmail(req.body.email, userList) !== null){
-    res.status(404).render('register',
-    {error: 'Email already exists, login or choose a different email.'});
-  }else{
-    const newUser = {
-      id: newUserId,
-      email: req.body.email,
-      password: bcrypt.hashSync(req.body.password, 10),
-    };
-
-    userList[newUserId] = newUser;
-    req.session.user_id = newUser.id;
-    res.redirect('/urls');
-  }
-})
+*/
 
 //Start Server
 app.listen(PORT, () => {

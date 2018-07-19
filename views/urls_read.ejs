@@ -4,16 +4,13 @@
 <% if (locals.user === undefined){ %>
   <a href="/login" >You must login to view urls.</a>
 <% }else{ %>
-<% for (let key in user.userUrls){ %>
-  <% const longUrl = user.userUrls[key].longUrl; %>  
-  <% const timesVisited = urls[key].visits.length; %>
-  <% const uniqueVisitors = urls[key].uniqueVisitors(visitsDB, timesVisited); %>
-  <a href="/urls/<%=key%>">Edit</a>
-  <p><%=key%> - <%= longUrl %> - Times Visited: <%= timesVisited %> -
-    Unique Visitors: <%= uniqueVisitors %>
-  <a class="btn btn-primary" href="/u/<%=key%>" target="_blank"> Do the Redirect! </a></p>
-  <form method="POST" action="/urls/<%=key%>?_method=DELETE" >
-    <input type="submit" value="Delete" />
-  </form>
+<% for (let url of urls){ %>
+  <% /* const timesVisited = urls[key].visits.length; */ %>
+  <% /*cnst uniqueVisitors = urls[key].uniqueVisitors(visitsDB, timesVisited); */ %>
+  <a href="/urls/<%=url.short_url%>">Edit</a>
+  <%= url.long_url %>
+    <a class="btn btn-primary" href="/u/<%=url.short_url%>" target="_blank">
+      Do the Redirect!
+    </a>
 <% }} %>
 <a href="/urls/new">Create a new Short Link</a>

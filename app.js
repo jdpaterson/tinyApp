@@ -1,10 +1,15 @@
+//WEB SERVER REQUIREMENTS
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
+const methodOverride = require("method-override");
+
+
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const Keygrip = require("keygrip");
-const methodOverride = require("method-override");
+
+
 const _ = require('underscore');
 const urlDatabase = require("./data.js").urlDatabase;
 const visitsDB = require("./data.js").visitsDB;

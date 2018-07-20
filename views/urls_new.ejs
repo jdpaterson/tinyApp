@@ -3,9 +3,17 @@
 <% if (locals.user === undefined){ %>
   <a href="/login" >You must login to view urls.</a>
 <% }else{ %>
-  <form action="/urls" method="POST" style="margin:15px;">
+
+<div class="row" style="margin: 25px">
+  <form action="/urls" method="POST" >
     <label for="longURL">Enter a URL:</label>
     <input type="text" name="longURL" placeholder="http://" style="width: 300px">
-    <input type="submit" value="Submit">
+    <button class="btn waves-effect waves-light"
+      type="submit"
+      name="action">Tiny-ify!
+    </button>
   </form>
+  </div>
 <% } %>
+
+<% include partials/_footer %>

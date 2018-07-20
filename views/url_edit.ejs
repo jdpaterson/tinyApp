@@ -1,8 +1,12 @@
 <% include partials/_header %>
 <% include partials/_error %>
-<h3> Edit URL: </h3>
+<h4> Edit URL: </h4>
   <form action="/urls/<%=urlToEdit.id%>" method="POST" style="margin:15px;">
     <p><%=urlToEdit.long_url%></p>
     <input type="text" name="newURL" style="width: 300px" />
-    <input type="submit" value="Update">
+    <button class="btn waves-effect waves-light"
+      type="submit"
+      name="action">Tiny-ify!
+    </button>
   </form>
+<% include partials/_footer %>

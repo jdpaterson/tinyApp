@@ -1,9 +1,16 @@
 <% include partials/_header %>
 <% include partials/_error %>
+
+<p class="flow-text" >Register a new account:</p>
 <form action="/register" method="POST" >
   <label>Email:</label>
   <input type="email" name="email" />
   <label>Password:</label>
   <input type="password" name="password" />
-  <input type="submit" value="Register" />
+  <button class="btn waves-effect waves-light"
+    type="submit"
+    name="action">Create Account
+  </button>
 </form>
+
+<% include partials/_footer %>

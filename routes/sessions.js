@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const help = require('../help');
 
 //Return login form
-router.get("/session/new", (req, res) => {
+router.get("/new", (req, res) => {
   if (req.session.user === undefined){
     res.render("login");
   }else{
@@ -11,7 +12,7 @@ router.get("/session/new", (req, res) => {
 })
 
 //Login user
-router.post("/session", (req, res) => {
+router.post("/", (req, res) => {
   help.getUserByEmail(req.body.userEmail)
   .then((user) => {
     if (!user){
@@ -32,7 +33,7 @@ router.post("/session", (req, res) => {
 })
 
 //Logout User
-router.post("/session/:id", (req, res) => {
+router.delete("/", (req, res) => {
   res.clearCookie('session');
   res.redirect('/');
 })

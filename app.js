@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
   keys: keys,
-  maxAge: 24 * 60 * 60 * 1000 * 365,
+  maxAge: 24 * 60 * 60 * 1000,
 }))
 app.use(methodOverride('_method'));
 
@@ -30,18 +30,34 @@ app.use('/users', usersRoutes);
 app.use('/sessions', sessionsRoutes);
 app.use('/urls', urlsRoutes);
 
+//Home page
+app.get("/", (req, res) => {
+  if (req.session.user === undefined){
+    res.redirect("/sessions/new");
+  }else{
+    res.redirect("/urls");
+  }
+})
+
 //Redirect to short URL
-app.get("/u/:id", (req, res) => {
+app.get("/u/:short_url", (req, res) => {
   if (req.session.visitor_id === undefined){
     req.session.visitor_id = help.genRandomStr();
   }
-  help.addVisit(req.params.id, req.session.visitor_id).then((vis) => {
-    Url.findById(req.params.id).then((url) => {
-        res.redirect(url.long_url);
+  help.getUrlByShort(req.params.short_url)
+    .then((url) => {
+      return help.addVisit(url, req.session.visitor_id);
+    }).then((vis) => {
+      return help.getUrlById(vis.url_id);
+    }).then((url) => {
+      res.redirect(url.long_url);
+    }).catch((err) => {
+      res.send({
+        error: 'error'
+      })
+      console.log(err);
     })
-  })
-});
-
+})
 
 //Start Server
 app.listen(PORT, () => {

@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const help = require('../help');
 
 //View User URLs page
-router.get("/urls", (req, res) => {
+router.get("/", (req, res) => {
   if (req.session.user === undefined){
     res.status(404).redirect('/login');
   }else{
@@ -16,7 +17,7 @@ router.get("/urls", (req, res) => {
 })
 
 //Render the add new URL page
-router.get("/urls/new", (req, res) => {
+router.get("/new", (req, res) => {
   if (req.session.user === undefined){
     res.status(404).render('login', {
       error:'You are not logged in, please register or login'
@@ -29,13 +30,13 @@ router.get("/urls/new", (req, res) => {
 })
 
 //Render the update URL page
-router.get("/urls/:id", (req, res) => {
+router.get("/:id", (req, res) => {
   if (!req.session.user){
     res.status(404).render('login', {
       error:'You are not logged in, please register or login'
     });
   }else{
-    Url.findById(req.params.id).then((url) => {
+    help.getUrlById(req.params.id).then((url) => {
       if (!url){
         res.status(404).render('urls_read', {
           error:'We can\'t find an Id matching that value.'
@@ -58,21 +59,22 @@ router.get("/urls/:id", (req, res) => {
 //POST Methods
 
 //Add new URL
-router.post("/urls", (req, res) => {
+router.post("/", (req, res) => {
   help.insUrl(req).then((url) => {
     res.redirect('/urls');
   })
 })
 
 //Update existing URL
-router.post("/urls/:id", (req, res) => {
+router.post("/:id", (req, res) => {
+  console.log('HERE I AM!!!!!')
   help.updUrl(req).then((resp) => {
     res.redirect('/');
   })
 })
 
 //Delete existing URL
-router.delete("/urls/:id", (req, res) => {
+router.delete("/:id", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect('/urls');
 })

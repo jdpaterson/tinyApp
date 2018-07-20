@@ -10,11 +10,6 @@ function isEmptyString(str){
   return str === '' ? true : false;
 }
 
-function getUserById(userId, userList){
-  return _.pick(userList, userId)[userId];
-  //Else return false?
-}
-
 function getUserByEmail(userEmail){
   return User.findOne({
     where: {
@@ -35,15 +30,30 @@ function getUserUrls(user, urls){
   })
 }
 
+function createUser(email, pass){
+  return User.create({
+    email: email,
+    password: bcrypt.hashSync(pass, 10),
+  })
+}
+
 function getUrlById(urlId){
   return Url.findById(urlId)
 }
 
-function addVisit(urlId, visitor_id){
-  return Visit.create({
-    url_id: urlId
+function getUrlByShort(short_url){
+  return Url.find({
+    where: {
+      short_url: short_url
+    }
   })
+}
 
+function addVisit(url, visitor_id){
+  return Visit.create({
+    url_id: url.id,
+    visitor_id: visitor_id
+  })
 }
 
 function insUrl(req){
@@ -63,7 +73,6 @@ function updUrl(req){
 }
 
 module.exports = {
-  urlExists: urlExists,
   getUserUrls: getUserUrls,
   genRandomStr: generateRandomString,
   getUserByEmail: getUserByEmail,
@@ -71,5 +80,8 @@ module.exports = {
   isEmptyString: isEmptyString,
   addVisit: addVisit,
   insUrl: insUrl,
-  updUrl: updUrl
+  updUrl: updUrl,
+  createUser: createUser,
+  getUrlById: getUrlById,
+  getUrlByShort: getUrlByShort
 }

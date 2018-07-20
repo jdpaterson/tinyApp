@@ -12,7 +12,7 @@
           You are logged in as <%= locals.user.email %>
         </li>
         <li>
-          <form method="POST" action="/logout" >
+          <form method="POST" action="/sessions?_method=DELETE" >
             <button class="btn waves-effect waves-light"
               type="submit"
               style="margin: 13px"
@@ -22,10 +22,10 @@
         </li>
         <% } else {  %>
         <li>
-          <a href="./register" class="btn btn-info">Register</a>
+          <a href="/users/new" class="btn btn-info">Register</a>
         </li>
         <li>
-          <a href="./login" class="btn btn-info">Login</a>
+          <a href="/sessions/new" class="btn btn-info">Login</a>
         </li>
         <% } %>
       </ul>

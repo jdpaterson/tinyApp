@@ -6,11 +6,11 @@
  <% include partials/_error %>
 
   <p class="flow-text" >Login with existing account here: </p>
-  <form method="POST" action="/login">
+  <form method="POST" action="/sessions">
     <input type="email" name="userEmail" placeholder="email" />
     <input type="password" name="password" placeholder="password" />
     <button class="btn waves-effect waves-light"
-      type="submit"      
+      type="submit"
       name="action">Login
     </button>
   </form>

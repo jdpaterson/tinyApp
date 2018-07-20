@@ -1,6 +1,5 @@
 const randomString = require('randomString');
 const bcrypt = require('bcrypt');
-const _ = require('underscore');
 const {User, Url, Visit} = require("./db/schema");
 
 function generateRandomString() {
@@ -9,11 +8,6 @@ function generateRandomString() {
 
 function isEmptyString(str){
   return str === '' ? true : false;
-}
-
-function getUserById(userId, userList){
-  return _.pick(userList, userId)[userId];
-  //Else return false?
 }
 
 function getUserByEmail(userEmail){
@@ -28,23 +22,6 @@ function passwordMatches(user, password){
   return bcrypt.compareSync(password,  user.password)
 }
 
-function setTemplateVars(urls, userData, session, visitsDB){
-  const templateVars = {
-    urls: urls,
-  };
-  if (session !== undefined){
-    if (session["user_id"] !== undefined){
-      const user = getUserById(session["user_id"], userData);
-      if (user){
-        templateVars.user = user;
-        templateVars.user.userUrls = getUserUrls(user.id, urls);
-        templateVars.visitsDB = visitsDB;
-      }
-    }
-  }
-  return templateVars;
-}
-
 function getUserUrls(user, urls){
   return Url.findAll({
     where: {
@@ -53,33 +30,30 @@ function getUserUrls(user, urls){
   })
 }
 
-function urlExists(url, urlList){
-  if (_.pick(urlList, url).id === undefined){
-    return false;
-  }else{
-    return true;
-  }
+function createUser(email, pass){
+  return User.create({
+    email: email,
+    password: bcrypt.hashSync(pass, 10),
+  })
 }
 
 function getUrlById(urlId){
   return Url.findById(urlId)
 }
 
-function addVisit(urlId, visitor_id){
-  return Visit.create({    
-    url_id: urlId
+function getUrlByShort(short_url){
+  return Url.find({
+    where: {
+      short_url: short_url
+    }
   })
-
 }
 
-const countUniqueVisitors = function(visitsDB, urlVisits){
-  let numOfVisits = _.pick(visitsDB, ...urlVisits);
-  let visitors = [];
-  for (let visit in numOfVisits ){
-    visitors.push(numOfVisits[visit].visitor_id);
-  }
-
-  return _.uniq(visitors).length;
+function addVisit(url, visitor_id){
+  return Visit.create({
+    url_id: url.id,
+    visitor_id: visitor_id
+  })
 }
 
 function insUrl(req){
@@ -99,15 +73,15 @@ function updUrl(req){
 }
 
 module.exports = {
-  setTemplateVars: setTemplateVars,
-  urlExists: urlExists,
   getUserUrls: getUserUrls,
   genRandomStr: generateRandomString,
   getUserByEmail: getUserByEmail,
   passwordMatches: passwordMatches,
   isEmptyString: isEmptyString,
   addVisit: addVisit,
-  countUniqueVisitors: countUniqueVisitors,
   insUrl: insUrl,
-  updUrl: updUrl
+  updUrl: updUrl,
+  createUser: createUser,
+  getUrlById: getUrlById,
+  getUrlByShort: getUrlByShort
 }

@@ -56,8 +56,8 @@ const Visit = seq.define('visit', {
     onDelete: 'cascade'
   },
   visitor_id: {
-    type: Sequelize.INTEGER
-  },  
+    type: Sequelize.STRING
+  },
 })
 
 User.sync().then(() => {

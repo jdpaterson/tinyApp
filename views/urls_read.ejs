@@ -2,7 +2,7 @@
 <% include partials/_error %>
 
 <% if (locals.user === undefined){ %>
-  <a href="/login" >You must login to view urls.</a>
+  <a href="/sessions/new" >You must login to view urls.</a>
 <% }else{ %>
 <% if (urls.length === 0) { %>
   <p style="flow-text">You haven&#39;t created any tinyUrls yet!</p>

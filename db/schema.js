@@ -57,10 +57,7 @@ const Visit = seq.define('visit', {
   },
   visitor_id: {
     type: Sequelize.INTEGER
-  },
-  time_visited: {
-    type: Sequelize.TIME
-  }
+  },  
 })
 
 User.sync().then(() => {

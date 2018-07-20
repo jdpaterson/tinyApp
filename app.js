@@ -46,10 +46,8 @@ app.get("/login", (req, res) => {
 //View URLs page
 app.get("/urls", (req, res) => {
   if (req.session.user === undefined){
-    console.log("REQ SESSION USER UNDEFINED");
     res.status(404).redirect('/login');
   }else{
-    console.log("REQ SESSION USER DEFINED");
     help.getUserUrls(req.session.user).then((urls) => {
       res.render("urls_read", {
         urls: urls,
@@ -113,7 +111,6 @@ app.post("/register", (req, res) => {
           email: req.body.email,
           password: bcrypt.hashSync(req.body.password, 10),
         }).then((user) => {
-          console.log('MY USER: ', user);
           req.session.user = user;
           res.redirect('/urls');
         })
@@ -122,16 +119,18 @@ app.post("/register", (req, res) => {
   }
 })
 
-/*
 //Add a new URL page
 app.get("/urls/new", (req, res) => {
-  if (req.session.user_id === undefined){
-    res.status(404).render('login', {error:'You are not logged in, please register or login'});
+  if (req.session.user === undefined){
+    res.status(404).render('login', {
+      error:'You are not logged in, please register or login'
+    })
   }else{
-    const templateVars = help.setTemplateVars(urlDatabase, userList, req.session, visitsDB);
-    res.render("urls_new", templateVars);
+    res.render("urls_new", {
+      user: req.session.user
+    })
   }
-});
+})
 
 //Update a URL page
 app.get("/urls/:id", (req, res) => {
@@ -140,63 +139,58 @@ app.get("/urls/:id", (req, res) => {
       error:'You are not logged in, please register or login'
     });
   }else{
-    const url = help.getUrlByShort(req.params.id, urlDatabase)[req.params.id];
-
-    if (url.id === undefined){
-      res.status(404).render('urls_read',{error:'We can\'t find an Id matching that value.'});
-    }else{
-      if(url.ownerId === req.session.user_id){
-        const templateVars = help.setTemplateVars(urlDatabase, userList, req.session, visitsDB);
-        templateVars.urlToEdit = url;
-        res.render('url_edit', templateVars);
+    Url.findById(req.params.id).then((url) => {
+      if (!url){
+        res.status(404).render('urls_read',{error:'We can\'t find an Id matching that value.'});
       }else{
-        res.status(404).send
-        ('You do not own that key');
+        if(url.owner_id === req.session.user.id){
+          res.render('url_edit', {
+            urlToEdit: url
+          })
+        }else{
+          res.status(404).send
+          ('You do not own that key');
+        }
       }
-    }
+    })
   }
-});
+})
 
 //Redirect to short URL
-app.get("/u/:shortUrl", (req, res) => {
-
-  const url = urlDatabase[req.params['shortUrl']];
-
+app.get("/u/:id", (req, res) => {
   if (req.session.visitor_id === undefined){
     req.session.visitor_id = help.genRandomStr();
   }
-
-  help.addVisit(url, req.session.visitor_id, visitsDB);
-  res.redirect(url.longUrl);
+  help.addVisit(req.params.id, req.session.visitor_id).then((vis) => {
+    Url.findById(req.params.id).then((url) => {
+        res.redirect(url.long_url);
+    })
+  })
 });
 
 //POST Methods
 
 //Add new URL
 app.post("/urls", (req, res) => {
-  const newUrl = help.genNewUrl(req, visitsDB);
-  urlDatabase[newUrl.id] = newUrl;
-  res.redirect('/urls');
-});
+  help.insUrl(req).then((url) => {    
+    res.redirect('/urls');
+  })
+})
 
 //Update existing URL
-app.put("/urls/:id", (req, res) => {
-  const updatedUrl = help.genNewUrl(req, visitsDB);
-  updatedUrl.longUrl = req.body.newURL;
-
-  urlDatabase[req.params.id] = updatedUrl;
-  res.redirect('/');
-});
+app.post("/urls/:id", (req, res) => {
+  help.updUrl(req).then((resp) => {
+    res.redirect('/');
+  })
+})
 
 //Delete existing URL
 app.delete("/urls/:id", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect('/urls');
-});
-
-*/
+})
 
 //Start Server
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
-});
+})

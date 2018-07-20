@@ -7,9 +7,9 @@
 <% for (let url of urls){ %>
   <% /* const timesVisited = urls[key].visits.length; */ %>
   <% /*cnst uniqueVisitors = urls[key].uniqueVisitors(visitsDB, timesVisited); */ %>
-  <a href="/urls/<%=url.short_url%>">Edit</a>
+  <a href="/urls/<%=url.id%>">Edit</a>
   <%= url.long_url %>
-    <a class="btn btn-primary" href="/u/<%=url.short_url%>" target="_blank">
+    <a class="btn btn-primary" href="/u/<%=url.id%>" target="_blank">
       Do the Redirect!
     </a>
 <% }} %>

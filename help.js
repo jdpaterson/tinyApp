@@ -61,26 +61,14 @@ function urlExists(url, urlList){
   }
 }
 
-function getUrlByShort(shortUrl, urlList){
-  return _.pick(urlList, shortUrl);
+function getUrlById(urlId){
+  return Url.findById(urlId)
 }
 
-function addVisit(url, visitor_id, visitsDB){
-  console.log('URL: ', url);
-  console.log('VID: ', visitor_id);
-  console.log('VDB: ', visitsDB);
-  var vistId = generateRandomString();
-  const visit = {
-    id: vistId,
-    visitor_id: visitor_id,
-    url: url.id,
-    createdTime: Date.now(),
-  };
-  if (url.visits === undefined){
-    url.visits = [];
-  }
-  url.visits.push(visit.id);
-  visitsDB[vistId] = visit;
+function addVisit(urlId, visitor_id){
+  return Visit.create({    
+    url_id: urlId
+  })
 
 }
 
@@ -94,27 +82,25 @@ const countUniqueVisitors = function(visitsDB, urlVisits){
   return _.uniq(visitors).length;
 }
 
-function genNewUrl(req, visitsDB){
-  const newStr = this.genRandomStr();
+function insUrl(req){
   const newUrl = {
-    id: newStr,
-    longUrl: req.body.longURL,
-    ownerId: req.session["user_id"],
-    visits: [],
-    timesVisited () {
-      return this.visits.length;
-    },
-    uniqueVisitors () {
-      return countUniqueVisitors(visitsDB, this.visits);
-    },
-  };
-  return newUrl;
+    short_url: randomString.generate(6),
+    long_url: req.body.longURL,
+    owner_id: req.session.user.id
+  }
+  return Url.create(newUrl);
+}
+
+function updUrl(req){
+  return Url.findById(req.params.id).then((url) => {
+    url.long_url = req.body.newURL;
+    url.save();
+  })
 }
 
 module.exports = {
   setTemplateVars: setTemplateVars,
   urlExists: urlExists,
-  getUrlByShort: getUrlByShort,
   getUserUrls: getUserUrls,
   genRandomStr: generateRandomString,
   getUserByEmail: getUserByEmail,
@@ -122,5 +108,6 @@ module.exports = {
   isEmptyString: isEmptyString,
   addVisit: addVisit,
   countUniqueVisitors: countUniqueVisitors,
-  genNewUrl: genNewUrl,
+  insUrl: insUrl,
+  updUrl: updUrl
 }

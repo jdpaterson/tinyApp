@@ -4,6 +4,7 @@ const seq = new Sequelize('tinyapp', 'vagrant', 'tinyapp', {
   dialect: 'postgres',
 })
 const {User, Url, Visit} = require('./schema');
+const randomString = require('randomString');
 
 User.create({
   email: '123@123.com',
@@ -22,13 +23,15 @@ User.create({
   Url.create({
     id: 1,
     long_url: 'http://www.lighthouselabs.ca',
-    owner_id: 1
+    owner_id: 1,
+    short_url: randomString(6);
   })
 }).then(() => {
   Url.create({
     id: 2,
     long_url: 'http://www.google.com',
-    owner_id: 2
+    owner_id: 2,
+    short_url: randomString(6);
   })
 })
 .then(() => {

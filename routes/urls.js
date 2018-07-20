@@ -7,7 +7,11 @@ router.get("/", (req, res) => {
   if (req.session.user === undefined){
     res.status(404).redirect('/login');
   }else{
-    help.getUserUrls(req.session.user).then((urls) => {
+    help.getUserUrls(req.session.user).then(async (urls) => {
+      for (url of urls){
+        url.timesVisited = await help.getTimesVisited(url);
+        url.uniqueVisitors = await help.getUniqueVisitors(url);
+      }
       res.render("urls_read", {
         urls: urls,
         user: req.session.user

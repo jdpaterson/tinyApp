@@ -11,7 +11,9 @@
     <thead>
       <tr>
         <th>TinyUrl ID</th>
-        <th>Long Url:</th>
+        <th>Long Url</th>
+        <th>Times Visited</th>
+        <th>Unique Visitors</th>
       </tr>
     </thead>
     <tbody>
@@ -19,6 +21,8 @@
       <tr>
         <td><%= url.short_url %></td>
         <td><%= url.long_url %></td>
+        <td><%= url.timesVisited %></td>
+        <td><%= url.uniqueVisitors.length %></td>
         <td><a class="btn btn-primary" href="/u/<%=url.short_url%>" target="_blank">
               Do the Redirect!
             </a>

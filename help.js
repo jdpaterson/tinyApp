@@ -72,6 +72,30 @@ function updUrl(req){
   })
 }
 
+function getTimesVisited(url){
+  return Visit.count({
+    where: {
+      url_id: url.id
+    }
+  })
+}
+
+function getUniqueVisitors(url){
+  return Visit.findAll({
+    where: {
+      url_id: url.id
+    }
+  }).then((vis) => {    
+    const uniqueVisitors = vis.reduce((accumulator, currentValue) => {
+      if (accumulator.indexOf(currentValue.visitor_id) < 0){
+        accumulator.push(currentValue.visitor_id);
+      }
+      return accumulator;
+    }, [])
+    return uniqueVisitors;
+  })
+}
+
 module.exports = {
   getUserUrls: getUserUrls,
   genRandomStr: generateRandomString,
@@ -83,5 +107,7 @@ module.exports = {
   updUrl: updUrl,
   createUser: createUser,
   getUrlById: getUrlById,
-  getUrlByShort: getUrlByShort
+  getUrlByShort: getUrlByShort,
+  getTimesVisited: getTimesVisited,
+  getUniqueVisitors: getUniqueVisitors
 }

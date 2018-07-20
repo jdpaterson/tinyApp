@@ -1,7 +1,7 @@
 const randomString = require('randomString');
 const bcrypt = require('bcrypt');
 const _ = require('underscore');
-
+const {User, Url, Visit} = require("./db/schema");
 
 function generateRandomString() {
   return randomString.generate(6);
@@ -16,17 +16,15 @@ function getUserById(userId, userList){
   //Else return false?
 }
 
-function getUserByEmail(userEmail, userList){
-  for (userKey in userList){
-    if (userEmail === userList[userKey].email){
-      return userList[userKey];
+function getUserByEmail(userEmail){
+  return User.findOne({
+    where: {
+      email: userEmail
     }
-  }
-  return null;
+  })
 }
 
-function passwordMatches(email, password, userList){
-  const user = getUserByEmail(email, userList);
+function passwordMatches(user, password){
   return bcrypt.compareSync(password,  user.password)
 }
 
@@ -47,14 +45,12 @@ function setTemplateVars(urls, userData, session, visitsDB){
   return templateVars;
 }
 
-function getUserUrls(userId, urls){
-  const userUrls = {};
-  for (let url in urls){
-    if (urls[url].ownerId === userId ){
-      userUrls[url] = urls[url];
+function getUserUrls(user, urls){
+  return Url.findAll({
+    where: {
+      owner_id: user.id
     }
-  }
-  return userUrls;
+  })
 }
 
 function urlExists(url, urlList){
@@ -65,26 +61,14 @@ function urlExists(url, urlList){
   }
 }
 
-function getUrlByShort(shortUrl, urlList){  
-  return _.pick(urlList, shortUrl);
+function getUrlById(urlId){
+  return Url.findById(urlId)
 }
 
-function addVisit(url, visitor_id, visitsDB){
-  console.log('URL: ', url);
-  console.log('VID: ', visitor_id);
-  console.log('VDB: ', visitsDB);
-  var vistId = generateRandomString();
-  const visit = {
-    id: vistId,
-    visitor_id: visitor_id,
-    url: url.id,
-    createdTime: Date.now(),
-  };
-  if (url.visits === undefined){
-    url.visits = [];
-  }
-  url.visits.push(visit.id);
-  visitsDB[vistId] = visit;
+function addVisit(urlId, visitor_id){
+  return Visit.create({    
+    url_id: urlId
+  })
 
 }
 
@@ -98,27 +82,25 @@ const countUniqueVisitors = function(visitsDB, urlVisits){
   return _.uniq(visitors).length;
 }
 
-function genNewUrl(req, visitsDB){
-  const newStr = this.genRandomStr();
+function insUrl(req){
   const newUrl = {
-    id: newStr,
-    longUrl: req.body.longURL,
-    ownerId: req.session["user_id"],
-    visits: [],
-    timesVisited () {
-      return this.visits.length;
-    },
-    uniqueVisitors () {
-      return countUniqueVisitors(visitsDB, this.visits);
-    },
-  };
-  return newUrl;
+    short_url: randomString.generate(6),
+    long_url: req.body.longURL,
+    owner_id: req.session.user.id
+  }
+  return Url.create(newUrl);
+}
+
+function updUrl(req){
+  return Url.findById(req.params.id).then((url) => {
+    url.long_url = req.body.newURL;
+    url.save();
+  })
 }
 
 module.exports = {
   setTemplateVars: setTemplateVars,
   urlExists: urlExists,
-  getUrlByShort: getUrlByShort,
   getUserUrls: getUserUrls,
   genRandomStr: generateRandomString,
   getUserByEmail: getUserByEmail,
@@ -126,5 +108,6 @@ module.exports = {
   isEmptyString: isEmptyString,
   addVisit: addVisit,
   countUniqueVisitors: countUniqueVisitors,
-  genNewUrl: genNewUrl,
+  insUrl: insUrl,
+  updUrl: updUrl
 }

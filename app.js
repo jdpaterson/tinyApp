@@ -134,7 +134,7 @@ app.get("/urls/new", (req, res) => {
 
 //Update a URL page
 app.get("/urls/:id", (req, res) => {
-  if (req.session.user_id === undefined){
+  if (!req.session.user){
     res.status(404).render('login', {
       error:'You are not logged in, please register or login'
     });
@@ -145,7 +145,8 @@ app.get("/urls/:id", (req, res) => {
       }else{
         if(url.owner_id === req.session.user.id){
           res.render('url_edit', {
-            urlToEdit: url
+            urlToEdit: url,
+            user: req.session.user
           })
         }else{
           res.status(404).send
@@ -157,13 +158,17 @@ app.get("/urls/:id", (req, res) => {
 })
 
 //Redirect to short URL
-app.get("/u/:id", (req, res) => {
+app.get("/u/:shortUrl", (req, res) => {
   if (req.session.visitor_id === undefined){
     req.session.visitor_id = help.genRandomStr();
   }
   help.addVisit(req.params.id, req.session.visitor_id).then((vis) => {
-    Url.findById(req.params.id).then((url) => {
-        res.redirect(url.long_url);
+    Url.find({
+      where: {
+        short_url: req.params.shortUrl
+      }
+    }).then((url) => {
+      res.redirect(url.long_url);
     })
   })
 });
@@ -172,7 +177,7 @@ app.get("/u/:id", (req, res) => {
 
 //Add new URL
 app.post("/urls", (req, res) => {
-  help.insUrl(req).then((url) => {    
+  help.insUrl(req).then((url) => {
     res.redirect('/urls');
   })
 })

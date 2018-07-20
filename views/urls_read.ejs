@@ -4,13 +4,33 @@
 <% if (locals.user === undefined){ %>
   <a href="/login" >You must login to view urls.</a>
 <% }else{ %>
+<% if (urls.length === 0) { %>
+  <p style="flow-text">You haven&#39;t created any tinyUrls yet!</p>
+<% } else { %>
+  <table>
+    <thead>
+      <tr>
+        <th>TinyUrl ID</th>
+        <th>Long Url:</th>
+      </tr>
+    </thead>
+    <tbody>
 <% for (let url of urls){ %>
-  <% /* const timesVisited = urls[key].visits.length; */ %>
-  <% /*cnst uniqueVisitors = urls[key].uniqueVisitors(visitsDB, timesVisited); */ %>
-  <a href="/urls/<%=url.id%>">Edit</a>
-  <%= url.long_url %>
-    <a class="btn btn-primary" href="/u/<%=url.id%>" target="_blank">
-      Do the Redirect!
-    </a>
+      <tr>
+        <td><%= url.short_url %></td>
+        <td><%= url.long_url %></td>
+        <td><a class="btn btn-primary" href="/u/<%=url.short_url%>" target="_blank">
+              Do the Redirect!
+            </a>
+        </td>
+        <td><a href="/urls/<%=url.id%>">Edit</a></td>
+      </tr>
+    <% /* const timesVisited = urls[key].visits.length; */ %>
+    <% /*cnst uniqueVisitors = urls[key].uniqueVisitors(visitsDB, timesVisited); */ %>
+<% } %>
+  </tbody>
+  </table>
 <% }} %>
-<a href="/urls/new">Create a new Short Link</a>
+<a class="btn btn-info" style="margin:25px" href="/urls/new">Create a new tinyUrl</a>
+
+<% include partials/_footer %>

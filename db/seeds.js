@@ -4,7 +4,7 @@ const seq = new Sequelize('tinyapp', 'tinyapp', 'tinyapp', {
   dialect: 'postgres',
 })
 const {User, Url, Visit} = require('./schema');
-const randomString = require('randomString');
+const randomString = require('randomstring');
 
 User.create({
   email: '123@123.com',

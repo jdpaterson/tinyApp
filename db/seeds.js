@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const Sequelize = require('sequelize');
-const seq = new Sequelize('tinyapp', 'vagrant', 'tinyapp', {
+const seq = new Sequelize('tinyapp', 'tinyapp', 'tinyapp', {
   dialect: 'postgres',
 })
 const {User, Url, Visit} = require('./schema');

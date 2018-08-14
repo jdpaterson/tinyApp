@@ -1,5 +1,5 @@
 const randomString = require('randomString');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const {User, Url, Visit} = require("./db/schema");
 
 function generateRandomString() {
@@ -85,7 +85,7 @@ function getUniqueVisitors(url){
     where: {
       url_id: url.id
     }
-  }).then((vis) => {    
+  }).then((vis) => {
     const uniqueVisitors = vis.reduce((accumulator, currentValue) => {
       if (accumulator.indexOf(currentValue.visitor_id) < 0){
         accumulator.push(currentValue.visitor_id);

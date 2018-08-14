@@ -1,4 +1,4 @@
-const randomString = require('randomString');
+const randomString = require('randomstring');
 const bcrypt = require('bcryptjs');
 const {User, Url, Visit} = require("./db/schema");
 

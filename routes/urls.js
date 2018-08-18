@@ -14,7 +14,8 @@ router.get("/", (req, res) => {
       }
       res.render("urls_read", {
         urls: urls,
-        user: req.session.user
+        user: req.session.user,
+        session: req.session
       })
     })
   }
@@ -23,12 +24,15 @@ router.get("/", (req, res) => {
 //Render the add new URL page
 router.get("/new", (req, res) => {
   if (req.session.user === undefined){
-    res.status(404).render('login', {
-      error:'You are not logged in, please register or login'
+    res.status(404).render('login',
+    {
+      error:'You are not logged in, please register or login',
+      session: req.session
     })
   }else{
     res.render("urls_new", {
-      user: req.session.user
+      user: req.session.user,
+      session: req.session
     })
   }
 })
@@ -36,20 +40,25 @@ router.get("/new", (req, res) => {
 //Render the update URL page
 router.get("/:id", (req, res) => {
   if (!req.session.user){
-    res.status(404).render('login', {
-      error:'You are not logged in, please register or login'
-    });
+    res.status(404).render('login',
+    {
+      error:'You are not logged in, please register or login',
+      session: req.session
+    })
   }else{
     help.getUrlById(req.params.id).then((url) => {
       if (!url){
-        res.status(404).render('urls_read', {
-          error:'We can\'t find an Id matching that value.'
+        res.status(404).render('urls_read',
+        {
+          error:'We can\'t find an Id matching that value.',
+          session: req.session
         })
       }else{
         if(url.owner_id === req.session.user.id){
           res.render('url_edit', {
             urlToEdit: url,
-            user: req.session.user
+            user: req.session.user,
+            session: req.session
           })
         }else{
           res.status(404).send
@@ -71,7 +80,6 @@ router.post("/", (req, res) => {
 
 //Update existing URL
 router.post("/:id", (req, res) => {
-  console.log('HERE I AM!!!!!')
   help.updUrl(req).then((resp) => {
     res.redirect('/');
   })

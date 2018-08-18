@@ -4,7 +4,7 @@ const help = require('../help');
 
 //Return login form
 router.get("/new", (req, res) => {
-  if (req.session.user === undefined){
+  if (!req.session.user){
     res.render("login", {session: req.session});
   }else{
     res.redirect("/urls");
@@ -38,7 +38,7 @@ router.post("/", (req, res) => {
 
 //Logout User
 router.delete("/", (req, res) => {
-  res.clearCookie('session');
+  req.session.user = null;
   res.redirect('/');
 })
 

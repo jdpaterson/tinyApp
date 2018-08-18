@@ -33,7 +33,8 @@ app.use('/urls', urlsRoutes);
 //Home page
 app.get("/", (req, res) => {
   req.session.views = (req.session.views || 0) + 1;
-  if (req.session.user === undefined){
+  if (!req.session.user){
+    console.log('HERE I AM');
     res.render("login", {session: req.session});
   }else{
     res.redirect("/urls");

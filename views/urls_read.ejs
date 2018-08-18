@@ -1,14 +1,15 @@
 <% include partials/_header %>
 <% include partials/_error %>
 <% include partials/_intro-modal %>
-  
+
 <% if (locals.user === undefined){ %>
   <a href="/sessions/new" >You must login to view urls.</a>
 <% }else{ %>
 <% if (urls.length === 0) { %>
   <p style="flow-text">You haven&#39;t created any tinyUrls yet!</p>
 <% } else { %>
-  <table>
+  <h5>Your URLs: </h5>
+  <table class="responsive-table">
     <thead>
       <tr>
         <th>TinyUrl ID</th>

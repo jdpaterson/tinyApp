@@ -1,5 +1,7 @@
 <% include partials/_header %>
 <% include partials/_error %>
+<% include partials/_intro-modal %>
+
 <% if (locals.user === undefined){ %>
   <a href="/sessions/new" >You must login to view urls.</a>
 <% }else{ %>

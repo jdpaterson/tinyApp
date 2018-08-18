@@ -20,7 +20,7 @@ const urlsRoutes = require('./routes/urls');
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
-  name: 'session',
+  name: 'tinyAppSession',
   keys: keys,
   maxAge: 24 * 60 * 60 * 1000,
 }))
@@ -32,8 +32,9 @@ app.use('/urls', urlsRoutes);
 
 //Home page
 app.get("/", (req, res) => {
+  req.session.views = (req.session.views || 0) + 1;
   if (req.session.user === undefined){
-    res.redirect("/sessions/new");
+    res.render("login", {session: req.session});
   }else{
     res.redirect("/urls");
   }
